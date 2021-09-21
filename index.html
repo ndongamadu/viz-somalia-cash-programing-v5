@@ -1,0 +1,219 @@
+<html>
+
+<head>
+    <title>HDX Somalia Cash</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='icon' type='image/png' href='https://data.humdata.org/images/icons/hdx.ico' />
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/dc.css" />
+    <link rel="stylesheet" type="text/css" href="css/site.css" />
+    <link rel="stylesheet" type="text/css" href="css/leaflet.css" />
+    <link rel="stylesheet" type="text/css" href="css/c3.css" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
+    <script src="js/jquery.js"></script>
+    <script src="js/d3.min.js"></script>
+    <script src="js/d3.tip.min.js"></script>
+    <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+    <script src = "https://cdnjs.cloudflare.com/ajax/libs/d3-legend/1.13.0/d3-legend.min.js"></script>
+    <script src="js/crossfilter.v1.min.js"></script>
+    <script src="js/dc.js"></script>
+    <script src="js/leaflet.js"></script>
+    <script src="js/dc.leaflet.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/c3.min.js"></script>
+
+</head>
+<body>
+    <div class="loader">
+      <div class="sp sp-circle"></div>
+      Loading data...
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12 title">
+                
+            </div>
+            <div class="col-md-9 col-sm-12 col-xs-12" id="overview">
+                <span class="justify"></span>
+            </div>
+            <div class="col-md-1 col-sm-4 col-xs-4">
+                <h4>Month</h4>
+                <select class="monthSelectionList">
+                     <option value="January">January</option>
+                    <option value="February">February</option>
+                    <option value="March">March</option>
+                    <option value="April">April</option>
+                    <option value="May">May</option>
+                     <option value="June">June</option>
+                    <option value="July">July</option>
+                    <option value="August">August</option>
+                    <option value="September">September</option>
+                    <option value="October">October</option>
+                    <option value="November">November</option>
+                    <option value="December">December</option>
+                </select>
+            </div>
+            <div class="col-md-1 col-sm-4 col-xs-4">
+                <h4>Year</h4>
+                <select class="yearSelectionList"></select>
+            </div>
+            <div class="col-md-1 col-sm-4 col-xs-4">
+                <h5><a class="reset btn btn-primary btn-sm" id="update">Update</a></h5>
+            </div>
+                <!-- Modal -->
+                <div id="myModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Data not found</h4>
+                  </div>
+                  <div class="modal-body">
+                    <h5>Projection data for the requested period is not available.</h5>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+
+                    </div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-2 col-sm-6 col-xs-6" id="numbers">
+                <p id="peopleAssisted"></p>
+                <h4 class="header">People assisted</h4>
+                <span class="small">People assisted is the sum of people receiving cash-based assistance across all sectors, in the selected month.(<a href="#more-people-assisted">See more</a>)</span>
+            </div>
+            <div class="col-md-2 col-sm-6 col-xs-6" id="numbers">
+                <p id="amountTransfered"></p>
+                <h4 class="header">Value transferred</h4>
+                <span class="small">Value transferred is the sum of the USD value of the cash-based assistance transferred to people in the selected month.(<a href="#more-people-assisted">See more</a>)</span>
+            </div> 
+            <div class="col-md-2 col-sm-6 col-xs-6" id="numbers">
+                <p id="numberOfOrgs"></p>
+                <h4 class="header">Number of partners</h4>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                <div id="yearlyChart"></div>
+            </div>  
+        </div>  
+        <hr>
+        <div class="row monthly-viz-container">
+            <div class="row">
+                <div class="col-md-3 col-sm-6 col-xs-12" id="filters">
+                    <h4><a href="#more-conditionaly">Conditionality</a></h4>
+                    <div id="filterConditionality"></div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-xs-12" id="filters">
+                    <h4><a href="#more-restriction">Restriction</a></h4>
+                    <div id="filterRestriction"></div>
+                </div>
+                    <div class="col-md-3 col-sm-6 col-xs-12" id="filters">
+                    <h4><a href="#more-area">Area</a></h4>
+                    <div id="filterArea"></div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-xs-12" id="filters">
+                    <h4><a href="#more-delivery-mechanism">Delivery mechanism</a></h4>
+                    <div id="filterMechanism"></div>
+                </div>
+            </div>
+
+            <!--  redesign-->
+            <div class="row">
+
+                <div class="col-md-4">
+                    <h4>Top 15 cash transfer by partner</h4>
+                    <div id="hdx-3W-who" class="hdx-3w-chart"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <h4>Cash transfer by region (No. individuals)</h4>
+                    <div id="regionalCash"  class="hdx-3w-chart"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="row">
+                        <h4>Cash transfer by district <a class=" btn btn-primary btn-sm reset" id="reset" href="javascript:dc.filterAll();dc.redrawAll();">Clear filters</a></h4>
+                        <div id="hdx-3W-where" class="hdx-3w-chart"></div>
+                        <p class="small">The boundaries and names shown and the designations used on this map do not imply official endorsement or acceptance by the United Nations.</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-4">
+                    <h4>Cash transfer by cluster (No. individuals)</h4>
+                    <div id="hdx-3W-what" class="hdx-3w-chart"></div>
+                </div>
+                <div class="col-md-4 desc">
+                    <div class="mpca">
+                        <h4>MPCA projections</h4>
+                        <p>The MPCA reporting also captures expected cash coverage per month (average) for next 6 months. This is mapped in relation to need (IPC projection) to provide a good overview on the extent to which programming needs to be scaled up. At the top right hand side, under Month and Year, kindly select upcoming months to view expected MPCA programming for that month.</p>
+                    </div>
+                    <div class="ipc">
+                        <h4>Cash Assistance coverage</h4>
+                        <p>The map on cash assistance coverage visualises the assistance (scale) against the need (IPC projections). It shows the intensity of coverage, that is the number of people provided with cash assistance (cluster cash, MPCA and safety nets) as a % of people in IPC 3 and above, IPC 4 and above and IPC 5.</p>
+                    </div>
+                </div>
+                <div class="col-md-4" id="ipc">
+                    <h4>Cash Assistance coverage (Assistance versus need)</h4>
+                    <div id="ipcmap"></div>
+                </div>
+            </div>
+
+            <hr>
+            <div class="row" class="infos">
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <h5><a id="more-people-assisted">People assisted</a></h5>
+                    <p class="small justify">People assisted is the sum of people receiving cash-based assistance across all sectors, in the selected month. It sums the reported number of recipients from all clusters, and includes both cash and vouchers. If a person receives cash-based assistance from more than one sector (for instance, a water voucher and a multi-purpose cash grant), that person will be counted more than once. Hence, there is some potential for double-counting, although this is estimated to be relatively limited.
+                    </p>
+                </div>
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <h5><a id="more-transfer-value">Value transferred</a></h5>
+                    <p class="small justify">Value transferred is the sum of the USD value of the cash-based assistance transferred to people in the selected month. It is calculated by multiplying the value transferred to each household multiplied by all assisted households, and summed across agencies and locations.</p>
+                </div>
+            </div>
+            <div class="row" class="infos">
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <h5><a id="more-delivery-mechanism">Delivery mechanism</a></h5>
+                    <p class="small justify">  Delivery mechanism – What mechanism is used to deliver the transfer? The options are Cash –mobile which is money transferred through the mobile phone; Cash -in hand, which is physical cash notes; e-Cash, which is cash delivered through an electronic card; Voucher –paper, which are vouchers for good or services printed on paper; e-Voucher which are vouchers for good or services delivered through an electronic card.</p>
+                </div>
+                <div class="col-md-3 col-sm-6 col-xs-6">
+                    <h5><a id="more-conditionaly">Conditionality</a></h5>
+                    <p class="small justify"> Conditionality - Are conditions (such as carrying out work or attending a training) required to receiving the transfer.</p>
+                </div>
+                <div class="col-md-3 col-sm-6 col-xs-6">
+                    <h5><a id="more-restriction">Restriction</a></h5>
+                    <p class="small justify">Restriction - Is the use of the transfer restricted to particular goods or services, or particular vendors.</p>
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <h5><a id="more-area">Area</a></h5>
+                    <p class="small justify"> Area – is the transfer delivered in a rural or urban area.</p>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <script src="js/site.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-115108248-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-115108248-1');
+    </script>
+
+
+</body>
+
+</html>
