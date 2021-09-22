@@ -50,6 +50,7 @@ var config = {
     whatFieldName: "#sector",
     whereFieldName: "#adm2+code",
     sumField: "#beneficiary",
+    donors : "#org+donor",
     geo: "data/Somalia_District_Polygon.json",
     joinAttribute: "DIS_CODE",
     nameAttribute: "DIST_NAME",
@@ -87,17 +88,19 @@ var mapsvg,
     g,
     projection;
 
-
+var pctRawData,
+    pctCoverageData;
 
 var fillCircle = '#418FDE';
 var fillcolor = '#dddddd';
-var ipcStressed = '#e5e692';
-var ipcStressedRange = ['#faf9e1', '#f8f7d5', '#f6f5c8', '#f4f2bb', '#f1f0ae', '#efeea2', '#edeb95','#ebe988'];
+var ipcStressed = '#fae61e';
+var ipcStressedRange = ['#fefad2','#fdf5a5','#fcf078','#fbeb4b','#fae61e'];
 
-var ipcCrisis = '#e5921d';
-var ipcCrisisRange = ['#fae1bf','#f8d5a4','#f6c889','#f4bb6d','#f2ae52','#f0a237','#ee951b','#ec8800'];
-var ipcEmergency = '#cc3f39';
-var ipcEmergencyRange = ['#f4c8c5','#efb1ac','#eb9a93','#e6827a','#e16a16','#dc5348','#d83b2f','#d32416'];
+var ipcCrisis = '#e67800';
+var ipcCrisisRange = ['#fae4cc','#f5c999','#f0ae66','#eb9333','#e67800'];
+var ipcEmergency = '#c80000';
+var ipcEmergencyRange = ['#f4cccc','#e99999','#de6666','#d33333','#c80000'];
+
 
 
 var initSettings = (function(){
@@ -166,7 +169,20 @@ function initCashData(dataLink) {
     cashData = crossfilter (dataCash); 
     cashIPCDim = cashData.dimension(function(d){ return d['#adm2+code']; });
     cashIPCGroup = cashIPCDim.group().reduceSum(function(d){ return d["#beneficiary"]; }).top(Infinity);
-    // mergeIPCPinData();
+    
+    pctRawData = d3.nest()
+            .key(function(d){
+                return d['#adm2+code'];
+            })
+            .key(function(d){
+                return d['#sector'];
+            })
+            .rollup(function(v) { 
+                return d3.sum(v, function(d){ 
+                    return Number(d[config.sumField]); 
+                })
+            })
+            .entries(dataCash);
 
 } //end of initCashData
 
@@ -195,14 +211,48 @@ function getSomAdm2Loc() {
     
 }//getSomAdm2Loc 
 
+var pieMPCAColor = '#F2645A',
+    pieSafetyNetsColor = '#1EBFB3',
+    pieSectoralCashColor = globalColor;
 
+var mpcaRange = ['#fce0de', '#fac1bd', '#f7a29c', '#f5837b', '#F2645A'],
+    safetyNetsRange = ['#d2f2f0', '#a5e5e1', '#78d9d1', '#4bccc2' ,'#1EBFB3'],
+    sectoralCashRange = ['#d8e7f2', '#b1cfe6', '#89b8d9', '#62a0cd' ,'#3B88C0'];
 
-function showMapTooltip(d, maptip, text){
+function showMapTooltip(d, maptip, text, data){
     var mouse = d3.mouse(mapsvg.node()).map( function(d) { return parseInt(d); } );
-    maptip
+    maptip.html('');
+
+    if(data == undefined) {
+        maptip
+            .classed('hidden', false)
+            .attr('style', 'left:'+(mouse[0]+20)+'px;top:'+(mouse[1]+20)+'px')
+            .html(text)
+    } else {
+        
+        var pie = d3.select('.map-tip')
+                .append('h5').text(text)
+                .append('div').attr('id', 'donut');
+        
+        maptip
         .classed('hidden', false)
         .attr('style', 'left:'+(mouse[0]+20)+'px;top:'+(mouse[1]+20)+'px')
-        .html(text)
+        
+        c3.generate({
+            bindto: "#donut",
+            size: {width: 200, height: 150},
+            data: {
+                columns: data,
+                type : 'pie',
+                colors: {
+                    'MPCA' : pieMPCAColor, 
+                    'Safety Nets': pieSafetyNetsColor,
+                    'Sectoral Cash': pieSectoralCashColor
+                }
+            }
+        });
+    }
+
 }
 
 function hideMapTooltip(maptip) {
@@ -260,6 +310,22 @@ function getPreviousIPCRangePeriod(month) {
     return previousRange;
     
 } //getPreviousIPCRangePeriod
+
+function getCoverageData(){
+    pctCoverageData = {};
+    pctRawData.forEach(element => {
+        var mpca = 0, 
+            safetyNets = 0, 
+            sectoralCash = 0, 
+            total = 0;
+        element.values.forEach(item => {
+            item.key == "MPCA" ? mpca += item.values :
+            item.key == "Safety Nets" ? safetyNets += item.values : sectoralCash += item.values ;
+        });
+        total = mpca + safetyNets + sectoralCash;
+        pctCoverageData[element.key] = {'MPCA': mpca, 'Safety Nets': safetyNets, 'Sectoral Cash': sectoralCash};
+    });
+}//mergeCoverageData
 
 function mergeIPCPinData() {
     var yr = '2020'; 
@@ -320,9 +386,7 @@ function mergeIPCPinData() {
                 var ipcStress = Number(element['stressed_'+label]);
                 var ipcCris = Number(element['crisis_'+label]);
                 var ipcEmer = Number(element['emergency_'+label]);
-                
                 element['#beneficiaries'] = reached;
-
                 (ipcStress == 0) ? ipcStress = reached : '';
                 ipcCris == 0 ? ipcCris = reached : '';
                 ipcEmer == 0 ? ipcEmer = reached : '';
@@ -335,16 +399,11 @@ function mergeIPCPinData() {
                 pct_emergency > 100 ? pct_emergency = 100 : '';
             }
          }
-
         element['#percentage+stressed'] = pct_stressed;
         element['#percentage+crisis'] = pct_crisis;
         element['#percentage+emergency'] = pct_emergency;
-          
     });
-
-
-    $('#ipc h4').text('Cash Assistance coverage - Assistance versus need (IPC '+ipcValidy+')');
- 
+    $('#ipcMapTitle h6').text('Cash Assistance coverage - Assistance versus need (IPC '+ipcValidy+')');
 } //mergeIPCPinData
 
 function getMax(phase) {
@@ -359,6 +418,62 @@ function getMax(phase) {
     return max;
 
 }//getMax
+
+function choroplethCoverageMap(cashType) {
+    $('#ipcMapTitle h6').text("");
+    var colLabel = "MPCA";
+    var range = mpcaRange ;
+
+    if (cashType == undefined) {
+        range = mpcaRange ;
+        colLabel = "MPCA";
+        $("input[name='MPCA']").prop('checked', true);
+        $("input[name='Safety Nets']").prop('checked', false);
+        $("input[name='Sectoral Cash']").prop('checked', false);
+    } else if (cashType == 'Safety Nets') {
+        range = safetyNetsRange;
+        colLabel = "Safety Nets";
+    } else if (cashType == 'Sectoral Cash'){
+        range = sectoralCashRange;
+        colLabel = "Sectoral Cash";
+    }
+
+    var maxValue = 0;
+    for (k in pctCoverageData) {
+        pctCoverageData[k][colLabel] > maxValue ? maxValue = pctCoverageData[k][colLabel] : null;
+    }
+
+    var pctCoverageColorScale = d3.scale.quantize()
+        .domain([0, 100])
+        .range(range);
+
+     mapsvg.selectAll('path').each( function(element, index) {
+        d3.select(this).transition().duration(500).attr('fill', function(d){
+            var filtered = pctCoverageData[parseInt(d.properties.DIS_CODE)];
+            var num = null;
+            filtered != undefined ? num =  filtered[colLabel] : null ; 
+            var clr = (num == null) ? '#ccc' : pctCoverageColorScale((num/maxValue)*100);
+            return clr;
+        });
+    });
+
+    var legend = d3.legend.color()
+      .labelFormat(d3.format(',.0f'))
+      .title("Legend")
+      .cells(range.length -1 )
+      .scale(pctCoverageColorScale);
+ 
+     d3.select('#legend').remove();
+
+    var div = d3.select('#ipcmap');
+    var svg = div.append('svg')
+        .attr('id', 'legend')
+        .attr('height', '120px');
+    
+    svg.append('g')
+      .attr('class', 'scale')
+      .call(legend);
+} // choroplethCoverageMap
 
 function choroplethIPCMap(phase) {
     var pctLabel ;
@@ -400,25 +515,26 @@ function choroplethIPCMap(phase) {
       .cells(range.length -1 )
       .scale(ipcColorScale);
  
-     d3.select('#legend').remove();
+    d3.select('#legend').remove();
 
     var div = d3.select('#ipcmap');
     var svg = div.append('svg')
         .attr('id', 'legend')
-        .attr('height', '160px');
+        .attr('height', '120px');
     
     svg.append('g')
       .attr('class', 'scale')
       .call(legend);
-
-
 } // choroplethIPCMap
 
-function initIPCMap(){
+var maptip ;
+var mapDataSelect = d3.select('#ipcmap').append('div')
+    .attr('class', 'ipcLegend')
+    .style('bottom', 10)
+    .style('right', 10);
 
-    getSomAdm2Loc();
-
-    var width = 490;//$('#map').width();
+function initiateGlobalMap (){
+    var width = 490;
     var height = 400;
     var mapScale = width*3.2;
 
@@ -433,7 +549,7 @@ function initIPCMap(){
         .attr("width", width)
         .attr("height", height);
 
-    var maptip = d3.select('#ipcmap').append('div').attr('class', 'd3-tip map-tip hidden');
+    maptip = d3.select('#ipcmap').append('div').attr('class', 'd3-tip map-tip hidden');
 
     g = mapsvg.append("g").attr('id', 'adm2')
               .selectAll("path")
@@ -445,60 +561,100 @@ function initIPCMap(){
                     return d.properties.DIS_CODE; 
                 })
                 .attr('fill', '#FFF')
-                // .attr('name', function(d){
-                //     return d.properties.DIST_NAME;
-                // })
                 .attr('stroke-width', 1)
                 .attr('stroke', '#7d868d');
+    
+    getSomAdm2Loc();
+    getCoverageData();
+    choroplethCoverageMap();
+    mapsController(true);
+
+} //initiateGlobalMap
 
 
-    var ipcLegend = d3.select('#ipcmap').append('div')
-                      .attr('class', 'ipcLegend')
-                      .style('bottom', 10)
-                      .style('right', 10);
+$('input[type=radio][name=ipcMapAndCoverage]').change(function(){
+    var coverageMapSelected = $("#pct").is(':checked') ;
+    
+    d3.select('#legend').remove();
 
-    var inputs = '<input type="checkbox" checked name="stressed"> IPC 3+<br>'+
-                 '<input type="checkbox" name="crisis"> IPC 4+<br>'+
-                 '<input type="checkbox" name="emergency"> IPC 5';
-    ipcLegend.html(inputs);
+    if(coverageMapSelected){
+        choroplethCoverageMap();
+    } else {
+        mergeIPCPinData();
+        choroplethIPCMap();
+    }
 
-    var text = '<h6>% of People in need: 100%</h6>'+
+    mapsController(coverageMapSelected);
+});
+
+function mapsController(coverageMap){
+    mapDataSelect.html('');
+
+    var inputsIPC = '<input type="checkbox" checked name="stressed"> IPC 3+<br>'+
+        '<input type="checkbox" name="crisis"> IPC 4+<br>'+
+        '<input type="checkbox" name="emergency"> IPC 5';
+    
+    var inputCoverage = '<input type="checkbox" checked name="MPCA"> MPCA<br>'+
+        '<input type="checkbox" name="Safety Nets"> Safety Nets<br>'+
+        '<input type="checkbox" name="Sectoral Cash"> Sectoral Cash';
+    
+
+    if (coverageMap) {
+        // percentage coverage map
+        mapDataSelect.html(inputCoverage);
+
+        d3.select('#adm2').selectAll('path')
+        .on('mousemove', function(d){
+            var filtered = pctCoverageData[parseInt(d.properties.DIS_CODE)];
+            var txt = '';
+            var keys = ['MPCA', 'Safety Nets', 'Sectoral Cash'];
+            var pieData = [];
+            if (filtered != undefined) {
+                keys.forEach(element => {
+                    var arr = [];
+                    if (filtered[element] != 0) {
+                        arr.push(element);
+                        arr.push(filtered[element]);
+                        pieData.push(arr);
+                    }
+                });
+                txt = d.properties.DIST_NAME+' ('+d.properties.REG_NAME+')';
+                showMapTooltip(d, maptip, txt, pieData);
+            } 
+        })
+        .on('mouseout', function(){
+            hideMapTooltip(maptip);
+        });
+    } else {
+        //IPC map
+        mapDataSelect.html(inputsIPC);
+        text = '<h6>% of People in need: 100%</h6>'+
             '<h6>% of People reached: 100%</h6>'+
             '<h6>Population: 12345</h6>';
 
-    var districts = d3.select('#adm2').selectAll('path')
-      .on('mousemove', function(d){
-        var filtered = ipcData.filter(pt => pt.code== d.properties.DIS_CODE);
-
-        var label = '';
-        // $("input[name='all']").is(":checked") ? label +='all':
-        $("input[name='stressed']").is(":checked") ? label = 'stressed' :
-        $("input[name='crisis']").is(":checked") ? label +='crisis':
-        $("input[name='emergency']").is(":checked") ? label +='emergency': ''
-
-        var pct = filtered[0]['#percentage+'+label];
-        var pin = filtered[0][label+'_'+ipcRangePeriodGlobal]
-        var txt = '<h5>'+d.properties.DIST_NAME+' ('+d.properties.REG_NAME+')</h5>'+
-            '<h6>% of People reached: '+pct+'</h6>'+
-            '<h6> People in Need: '+pin+'</h6>';
-
-        showMapTooltip(d, maptip, txt);
-      })
-      .on('mouseout', function(){
-        hideMapTooltip(maptip);
-      });
-
-
-
-    // $("input[name='all']").change(function() {
-    //     if(this.checked) {
-    //         $("input[name='stressed']").prop('checked', false);
-    //         $("input[name='crisis']").prop('checked', false);
-    //         $("input[name='emergency']").prop('checked', false);
-    //         choroplethIPCMap();
-    //     }
-    // });
-
+        d3.select('#adm2').selectAll('path')
+        .on('mousemove', function(d){
+            var filtered = ipcData.filter(pt => pt.code== d.properties.DIS_CODE);
+    
+            var label = '';
+            // $("input[name='all']").is(":checked") ? label +='all':
+            $("input[name='stressed']").is(":checked") ? label = 'stressed' :
+            $("input[name='crisis']").is(":checked") ? label +='crisis':
+            $("input[name='emergency']").is(":checked") ? label +='emergency': ''
+    
+            var pct = filtered[0]['#percentage+'+label];
+            var pin = filtered[0][label+'_'+ipcRangePeriodGlobal]
+            var txt = '<h5>'+d.properties.DIST_NAME+' ('+d.properties.REG_NAME+')</h5>'+
+                '<h6>% of People reached: <strong>'+pct+'</strong></h6>'+
+                '<h6> People in Need: <strong>'+pin+'</strong></h6>';
+    
+            showMapTooltip(d, maptip, txt);
+        })
+        .on('mouseout', function(){
+            hideMapTooltip(maptip);
+        });
+    }
+// IPC map data toggle
     $("input[name='stressed']").change(function() {
         if(this.checked) {
             $("input[name='crisis']").prop('checked', false);
@@ -523,10 +679,32 @@ function initIPCMap(){
         }
     });
 
+    // Coverage map data toggle
+    $("input[name='MPCA']").change(function() {
+        if(this.checked) {
+            $("input[name='Safety Nets']").prop('checked', false);
+            $("input[name='Sectoral Cash']").prop('checked', false);
+            choroplethCoverageMap('MPCA');
+        }
+    });
 
+    $("input[name='Safety Nets']").change(function() {
+        if(this.checked) {
+            $("input[name='MPCA']").prop('checked', false);
+            $("input[name='Sectoral Cash']").prop('checked', false);
+            choroplethCoverageMap('Safety Nets');
+        }
+    });
 
+    $("input[name='Sectoral Cash']").change(function() {
+        if(this.checked) {
+            $("input[name='MPCA']").prop('checked', false);
+            $("input[name='Safety Nets']").prop('checked', false);
+            choroplethCoverageMap('Sectoral Cash');
+        }
+    });
 
-} //initIPCMap
+} //mapsController
 
 
 function generateOverviewText(id) {
@@ -554,6 +732,7 @@ function checkIntData(d){
 var whatChart,
     whoChart,
     whoRegional,
+    donorChart,
     filterMechanismPie,
     filtercondPie,
     filterRestPie,
@@ -564,6 +743,7 @@ function generate3WComponent() {
 
     whoChart = dc.rowChart('#hdx-3W-who');
     whatChart = dc.rowChart('#hdx-3W-what');
+    donorChart = dc.rowChart('#hdx-3W-donor');
     var whereChart = dc.leafletChoroplethChart('#hdx-3W-where');
 
     whoRegional = dc.rowChart('#regionalCash');
@@ -589,6 +769,10 @@ function generate3WComponent() {
 
     var whatDimension = cashData.dimension(function (d) {
         return d[config.whatFieldName];
+    });
+
+    var donorDimension = cashData.dimension(function(d){
+        return d[config.donors];
     });
 
     var mpcaFilter = whatDimension.filter("MPCA").top(Infinity);
@@ -641,6 +825,10 @@ function generate3WComponent() {
     });
 
     var whereGroup = whereDimension.group().reduceSum(function (d) {
+        return parseInt(d[config.sumField]);
+    });
+
+    var donorGroup = donorDimension.group().reduceSum(function(d){
         return parseInt(d[config.sumField]);
     });
 
@@ -856,15 +1044,29 @@ function generate3WComponent() {
         .xAxis().ticks(5);
         
 
-    whatChart.on('filtered', function(chart, filter){
-        if (chart.hasFilter()) {
-            mergeIPCPinData();
-            choroplethIPCMap();
-        } else {
-            mergeIPCPinData();
-            choroplethIPCMap();
-        }
-    });
+    // whatChart.on('filtered', function(chart, filter){
+    //     if (chart.hasFilter()) {
+    //         mergeIPCPinData();
+    //         choroplethIPCMap();
+    //     } else {
+    //         mergeIPCPinData();
+    //         choroplethIPCMap();
+    //     }
+    // });
+
+    donorChart.width($('#hxd-3W-chart').width()).height(400)
+    .dimension(donorDimension)
+    .group(donorGroup)
+    .elasticX(true)
+    .data(function (group) {
+        return group.top(15);
+    })
+    .labelOffsetY(31)
+    .colors([config.color])
+    .colorAccessor(function (d) {
+        return 0;
+    })
+    .xAxis().ticks(5);
 
 
     whoRegional.width($('#whoRegional').width()).height(450)
@@ -1037,10 +1239,13 @@ $('#update').on('click', function(){
         generateOverviewText(id);
         initCashData(settings[id].link);
         generate3WComponent();
-        mergeIPCPinData();
-        choroplethIPCMap();
+        // mergeIPCPinData();
+        // choroplethIPCMap();
+        getSomAdm2Loc();
+        getCoverageData();
+        choroplethCoverageMap();
+        mapsController(true);
     } else{
-        
         var mois = parseInt(datesDic[config.lastUpdateMonth]);
         var annee = parseInt(config.lastUpdateYear);
         for (var i = 1; i < 7; i++) {
@@ -1071,16 +1276,20 @@ $('#update').on('click', function(){
             generateOverviewText();
             initCashData(settings[id].link);
             generate3WComponent();
-            mergeIPCPinData();
-            choroplethIPCMap();
+            // mergeIPCPinData();
+            // choroplethIPCMap();
+            choroplethCoverageMap();
+            mapsController(true);
         } else {
             $('#myModal').modal('show');
 
             generateOverviewText(id);
             initCashData(settings[id].link);
             generate3WComponent();
-            mergeIPCPinData();
-            choroplethIPCMap();
+            // mergeIPCPinData();
+            // choroplethIPCMap();
+            choroplethCoverageMap();
+            mapsController(true);
             $('.monthSelectionList').val(config.lastUpdateMonth);
             $('.yearSelectionList').val(config.lastUpdateYear);
         }
@@ -1138,9 +1347,8 @@ $.when(ipcDataCall, geomCall, yearsDropdownDataCall).then(function (ipc, geomArg
     generateOverviewText(id)
     generateLineCharts(monthlyMonths,monthlyBeneficiaries, monthlyTransfer, '#yearlyChart');
     generate3WComponent();
-    initIPCMap();
-    mergeIPCPinData();
-    choroplethIPCMap();
+
+    initiateGlobalMap();
 });
 
 // fin

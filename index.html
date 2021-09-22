@@ -125,7 +125,6 @@
                 </div>
             </div>
 
-            <!--  redesign-->
             <div class="row">
 
                 <div class="col-md-4">
@@ -142,7 +141,6 @@
                     <div class="row">
                         <h4>Cash transfer by district <a class=" btn btn-primary btn-sm reset" id="reset" href="javascript:dc.filterAll();dc.redrawAll();">Clear filters</a></h4>
                         <div id="hdx-3W-where" class="hdx-3w-chart"></div>
-                        <p class="small">The boundaries and names shown and the designations used on this map do not imply official endorsement or acceptance by the United Nations.</p>
                     </div>
                 </div>
             </div>
@@ -150,56 +148,83 @@
 
             <div class="row">
                 <div class="col-md-4">
+                    <h4>Cash transfer by donor (No. individuals)</h4>
+                    <div id="hdx-3W-donor" class="hdx-3w-chart"></div>
+                </div>
+                <div class="col-md-4 desc">
                     <h4>Cash transfer by cluster (No. individuals)</h4>
                     <div id="hdx-3W-what" class="hdx-3w-chart"></div>
                 </div>
-                <div class="col-md-4 desc">
-                    <div class="mpca">
-                        <h4>MPCA projections</h4>
-                        <p>The MPCA reporting also captures expected cash coverage per month (average) for next 6 months. This is mapped in relation to need (IPC projection) to provide a good overview on the extent to which programming needs to be scaled up. At the top right hand side, under Month and Year, kindly select upcoming months to view expected MPCA programming for that month.</p>
-                    </div>
-                    <div class="ipc">
-                        <h4>Cash Assistance coverage</h4>
-                        <p>The map on cash assistance coverage visualises the assistance (scale) against the need (IPC projections). It shows the intensity of coverage, that is the number of people provided with cash assistance (cluster cash, MPCA and safety nets) as a % of people in IPC 3 and above, IPC 4 and above and IPC 5.</p>
-                    </div>
-                </div>
                 <div class="col-md-4" id="ipc">
-                    <h4>Cash Assistance coverage (Assistance versus need)</h4>
+                    <div>
+                        <input type="radio" name="ipcMapAndCoverage" id="pct" checked>
+                        <label for="pct"><a href="#cash-coverage">Cash Assistance per cluster (%)</a></label>
+                    </div>
+                    <div>
+                        <input type="radio" name="ipcMapAndCoverage" id="ipcInput">
+                        <label id="ipclabel" for="ipc"><a href="#cash-ipc">Cash Assistance coverage (Assistance versus need)</a></label>
+                    </div>
+                    <div id="ipcMapTitle">
+                        <h6></h6>
+                    </div>
                     <div id="ipcmap"></div>
                 </div>
             </div>
 
             <hr>
-            <div class="row" class="infos">
-                <div class="col-md-6 col-sm-12 col-xs-12">
-                    <h5><a id="more-people-assisted">People assisted</a></h5>
-                    <p class="small justify">People assisted is the sum of people receiving cash-based assistance across all sectors, in the selected month. It sums the reported number of recipients from all clusters, and includes both cash and vouchers. If a person receives cash-based assistance from more than one sector (for instance, a water voucher and a multi-purpose cash grant), that person will be counted more than once. Hence, there is some potential for double-counting, although this is estimated to be relatively limited.
-                    </p>
+            <div class="infos">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5><a id="cash-ipc">MPCA projections</a></h5>
+                        <p class="small justify">The MPCA reporting also captures expected cash coverage per month (average) for next 6 months. This is mapped in relation to need (IPC projection) to provide a good overview on the extent to which programming needs to be scaled up. At the top right hand side, under Month and Year, kindly select upcoming months to view expected MPCA programming for that month.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5><a id="cash-ipc">Cash Assistance coverage</a></h5>
+                        <p class="small justify">The map on cash assistance coverage visualises the assistance (scale) against the need (IPC projections). It shows the intensity of coverage, that is the number of people provided with cash assistance (cluster cash, MPCA and safety nets) as a % of people in IPC 3 and above, IPC 4 and above and IPC 5.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5><a id="cash-coverage">Cash Assistance per Cluster (%)</a></h5>
+                        <p class="small justify">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Molestiae nulla harum labore tempora porro sit incidunt a vel et rerum, laboriosam repellendus? Unde libero, laboriosam fuga molestias est nulla possimus.</p>
+                    </div>
                 </div>
-                <div class="col-md-6 col-sm-12 col-xs-12">
-                    <h5><a id="more-transfer-value">Value transferred</a></h5>
-                    <p class="small justify">Value transferred is the sum of the USD value of the cash-based assistance transferred to people in the selected month. It is calculated by multiplying the value transferred to each household multiplied by all assisted households, and summed across agencies and locations.</p>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5><a id="more-people-assisted">People assisted</a></h5>
+                        <p class="small justify">People assisted is the sum of people receiving cash-based assistance across all sectors, in the selected month. It sums the reported number of recipients from all clusters, and includes both cash and vouchers. If a person receives cash-based assistance from more than one sector (for instance, a water voucher and a multi-purpose cash grant), that person will be counted more than once. Hence, there is some potential for double-counting, although this is estimated to be relatively limited.
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5><a id="more-transfer-value">Value transferred</a></h5>
+                        <p class="small justify">Value transferred is the sum of the USD value of the cash-based assistance transferred to people in the selected month. It is calculated by multiplying the value transferred to each household multiplied by all assisted households, and summed across agencies and locations.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5><a id="more-delivery-mechanism">Delivery mechanism</a></h5>
+                        <p class="small justify">  Delivery mechanism – What mechanism is used to deliver the transfer? The options are Cash –mobile which is money transferred through the mobile phone; Cash -in hand, which is physical cash notes; e-Cash, which is cash delivered through an electronic card; Voucher –paper, which are vouchers for good or services printed on paper; e-Voucher which are vouchers for good or services delivered through an electronic card.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5><a id="more-conditionaly">Conditionality</a></h5>
+                        <p class="small justify"> Conditionality - Are conditions (such as carrying out work or attending a training) required to receiving the transfer.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5><a id="more-restriction">Restriction</a></h5>
+                        <p class="small justify">Restriction - Is the use of the transfer restricted to particular goods or services, or particular vendors.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5><a id="more-area">Area</a></h5>
+                        <p class="small justify"> Area – is the transfer delivered in a rural or urban area.</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5>Disclaimer</h5>
+                        <p class="small justify">The boundaries and names shown and the designations used on the maps do not imply official endorsement or acceptance by the United Nations.</p> 
+                    </div>
                 </div>
             </div>
-            <div class="row" class="infos">
-                <div class="col-md-6 col-sm-6 col-xs-6">
-                    <h5><a id="more-delivery-mechanism">Delivery mechanism</a></h5>
-                    <p class="small justify">  Delivery mechanism – What mechanism is used to deliver the transfer? The options are Cash –mobile which is money transferred through the mobile phone; Cash -in hand, which is physical cash notes; e-Cash, which is cash delivered through an electronic card; Voucher –paper, which are vouchers for good or services printed on paper; e-Voucher which are vouchers for good or services delivered through an electronic card.</p>
-                </div>
-                <div class="col-md-3 col-sm-6 col-xs-6">
-                    <h5><a id="more-conditionaly">Conditionality</a></h5>
-                    <p class="small justify"> Conditionality - Are conditions (such as carrying out work or attending a training) required to receiving the transfer.</p>
-                </div>
-                <div class="col-md-3 col-sm-6 col-xs-6">
-                    <h5><a id="more-restriction">Restriction</a></h5>
-                    <p class="small justify">Restriction - Is the use of the transfer restricted to particular goods or services, or particular vendors.</p>
-                </div>
-                <div class="col-md-6 col-sm-6 col-xs-6">
-                    <h5><a id="more-area">Area</a></h5>
-                    <p class="small justify"> Area – is the transfer delivered in a rural or urban area.</p>
-                </div>
-            </div>
-        </div>
     </div> 
     <script src="js/site.js"></script>
 
