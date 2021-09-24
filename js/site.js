@@ -1062,7 +1062,7 @@ function generate3WComponent() {
     //     }
     // });
 
-    whatChart.width($('#hxd-3W-what').width()).height(400)
+    whatChart.width($('#hxd-3W-what').width()).height(450)
         .dimension(whatDimension)
         .group(whatGroup)
         .elasticX(true)
@@ -1087,14 +1087,14 @@ function generate3WComponent() {
     //     }
     // });
 
-    donorChart.width($('#hxd-3W-chart').width()).height(400)
+    donorChart.width($('#hxd-3W-chart').width()).height(450)
     .dimension(donorDimension)
     .group(donorGroup)
     .elasticX(true)
     .data(function (group) {
         return group.top(15);
     })
-    .labelOffsetY(31)
+    // .labelOffsetY(31)
     .colors([config.color])
     .colorAccessor(function (d) {
         return 0;
