@@ -116,7 +116,7 @@
                     <div id="filterRestriction"></div>
                 </div>
                     <div class="col-md-3 col-sm-6 col-xs-12" id="filters">
-                    <h4><a href="#more-area">Area</a></h4>
+                    <h4><a href="#more-area">Population Type</a></h4>
                     <div id="filterArea"></div>
                 </div>
                 <div class="col-md-3 col-sm-6 col-xs-12" id="filters">
@@ -180,42 +180,55 @@
                     </div>
                     <div class="col-md-4">
                         <h5><a id="cash-ipc">Cash Assistance coverage</a></h5>
-                        <p class="small justify">The map on cash assistance coverage visualises the assistance (scale) against the need (IPC projections). It shows the intensity of coverage, that is the number of people provided with cash assistance (cluster cash, MPCA and safety nets) as a % of people in IPC 3 and above, IPC 4 and above and IPC 5.</p>
+                        <p class="small justify">The map on cash assistance coverage visualises the assistance (scale) against the need (IPC projections). It shows the intensity of coverage, that is the number of people provided with cash assistance (sector-specific cash, MPCA and safety nets) as a % of people in IPC 3 and above, IPC 4 and above and IPC 5.</p>
                     </div>
                     <div class="col-md-4">
                         <h5><a id="cash-coverage">Cash Assistance per Cluster (%)</a></h5>
-                        <p class="small justify">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Molestiae nulla harum labore tempora porro sit incidunt a vel et rerum, laboriosam repellendus? Unde libero, laboriosam fuga molestias est nulla possimus.</p>
+                        <p class="small justify">The map on cash assistance per clusters visualises the % of the overall assistance dived per cluster (MPCA, safety net or sector-specific cash). </p>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-4">
-                        <h5><a id="more-people-assisted">People assisted</a></h5>
-                        <p class="small justify">People assisted is the sum of people receiving cash-based assistance across all sectors, in the selected month. It sums the reported number of recipients from all clusters, and includes both cash and vouchers. If a person receives cash-based assistance from more than one sector (for instance, a water voucher and a multi-purpose cash grant), that person will be counted more than once. Hence, there is some potential for double-counting, although this is estimated to be relatively limited.
+                        <h5><a id="more-delivery-mechanism">Delivery mechanisms</a></h5>
+                        <p class="small justify">  Delivery mechanisms – What mechanism is used to deliver the transfer?  
+                                <li class="small">Mobile Money: uses mobile phones to access financial services. It is a paperless version of a national currency.</li>
+                                <li class="small">Cash-in-hand: Cash in hand is a payment made directly to recipients in physical currency (notes and coins).</li>
+                                <li class="small">e-Cash: Any electronic substitute for the direct transfer of physical currency that provides full, unrestricted flexibility for purchases.</li>
+                                <li class="small">Voucher (paper): A paper or token that can be exchanged for a set quantity or value of goods or services, denominated either as a cash value (e.g. $15) or predetermined commodities (e.g. 5 kg maize) or specific services (e.g. milling of 5 kg of maize), or a combination of value and commodities. Vouchers are restricted by default.</li>
+                                <li class="small">e-Voucher: A card or code that is electronically redeemed at a participating vendor. E-vouchers can represent monetary or commodity value and are stored and redeemed using a range of electronic devices.</li>
                         </p>
                     </div>
                     <div class="col-md-4">
-                        <h5><a id="more-transfer-value">Value transferred</a></h5>
-                        <p class="small justify">Value transferred is the sum of the USD value of the cash-based assistance transferred to people in the selected month. It is calculated by multiplying the value transferred to each household multiplied by all assisted households, and summed across agencies and locations.</p>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5><a id="more-people-assisted">People assisted</a></h5>
+                                <p class="small justify">People assisted is the sum of people receiving cash-based assistance across all sectors, in the selected month. It sums the reported number of recipients from all clusters, and includes both cash and vouchers. If a person receives cash-based assistance from more than one sector (for instance, a water voucher and a multi-purpose cash grant), that person will be counted more than once. Hence, there is some potential for double-counting, although this is estimated to be relatively limited.
+                                </p>
+                            </div>
+                            <div class="col-md-12">
+                                <h5><a id="more-transfer-value">Value transferred</a></h5>
+                                <p class="small justify">Value transferred is the sum of the USD value of the cash-based assistance transferred to people in the selected month. It is calculated by multiplying the value transferred to each household multiplied by all assisted households, and summed across agencies and locations.
+                                </p>
+                            </div>
+                        </div>
+
                     </div>
                     <div class="col-md-4">
-                        <h5><a id="more-delivery-mechanism">Delivery mechanism</a></h5>
-                        <p class="small justify">  Delivery mechanism – What mechanism is used to deliver the transfer? The options are Cash –mobile which is money transferred through the mobile phone; Cash -in hand, which is physical cash notes; e-Cash, which is cash delivered through an electronic card; Voucher –paper, which are vouchers for good or services printed on paper; e-Voucher which are vouchers for good or services delivered through an electronic card.</p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <h5><a id="more-conditionaly">Conditionality</a></h5>
-                        <p class="small justify"> Conditionality - Are conditions (such as carrying out work or attending a training) required to receiving the transfer.</p>
-                    </div>
-                    <div class="col-md-4">
-                        <h5><a id="more-restriction">Restriction</a></h5>
+                        <div>
+                            <h5><a id="more-conditionaly">Conditionality</a></h5>
+                            <p class="small justify"> Conditionality - Are conditions (such as carrying out work or attending a training) required to receiving the transfer.</p>
+                        </div>
+                        <div>
+                            <h5><a id="more-restriction">Restriction</a></h5>
                         <p class="small justify">Restriction - Is the use of the transfer restricted to particular goods or services, or particular vendors.</p>
+                        </div>
+                        <div>
+                            <h5><a id="more-area">Population Type</a></h5>
+                        <p class="small justify"> The type of beneficiaries the transfer is released to (rural, urban, IDP)</p>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <h5><a id="more-area">Area</a></h5>
-                        <p class="small justify"> Area – is the transfer delivered in a rural or urban area.</p>
-                    </div>
+
                 </div>
 
                 <div class="row">

@@ -102,7 +102,10 @@ var ipcEmergency = '#c80000';
 var ipcEmergencyRange = ['#f4cccc','#e99999','#de6666','#d33333','#c80000'];
 
 
-
+/**  Get settings sheet where all hxl proxy links of monthly data are stored
+ * on complete set in config most recent month and year and initiate getting most 
+ * recent cash data
+ * */
 var initSettings = (function(){
     $.ajax({
         type: 'GET',
@@ -131,7 +134,11 @@ var initSettings = (function(){
 })();
 
 
-
+/* Get last entry of the settings sheet and add to config :
+ the hxl proxy link
+ month
+ year
+*/
 function initConfig() {
     var bigger = 1;
 
@@ -151,6 +158,12 @@ function initConfig() {
     
 } //end of initConfig
 
+
+/*Creates crossfilter object of the given link parameter
+sets the gloabal monthly cash crossfilter object, the dimension and the group on adm2 and total beneficiaries
+used for IPC data
+and a nested data object for % coverage map
+*/
 function initCashData(dataLink) {
     var dataCash = (function(){
     var a;
@@ -186,6 +199,8 @@ function initCashData(dataLink) {
 
 } //end of initCashData
 
+
+// on filter sets configs month and year
 $('.monthSelectionList option').filter(function(){
     return $(this).text() == config.lastUpdateMonth;
 }).prop('selected', true);
@@ -193,6 +208,8 @@ $('.monthSelectionList option').filter(function(){
 $('.yearSelectionList option').filter(function(){
     return $(this).text() == config.lastUpdateYear;
 }).prop('selected', true);
+
+
 
 function getSomAdm2Loc() {
     somAdm2Loc = (function(){
@@ -225,8 +242,12 @@ function showMapTooltip(d, maptip, text, data){
     } else {
         
         var pie = d3.select('.map-tip')
-                .append('h5').text(text)
-                .append('div').attr('id', 'donut');
+                .append('button').attr('type', 'button').attr('class', 'btn-close')
+                .attr('id', "close").attr('onclick', "hideMapTooltip(maptip);")
+                .text("Close");
+                
+        d3.select('.map-tip').append('h5').text(text)
+                    .append('div').attr('id', 'donut');
         
         maptip
         .classed('hidden', false)
@@ -242,6 +263,11 @@ function showMapTooltip(d, maptip, text, data){
                     'MPCA' : pieMPCAColor, 
                     'Safety Nets': pieSafetyNetsColor,
                     'Sectoral Cash': pieSectoralCashColor
+                }
+            },
+            pie: {
+                label: {
+                    threshold: 0.05
                 }
             }
         });
@@ -568,7 +594,7 @@ function initiateGlobalMap (){
                 .attr('stroke-width', 1)
                 .attr('stroke', '#7d868d');
     
-    getSomAdm2Loc();
+    // getSomAdm2Loc();
     getCoverageData();
     choroplethCoverageMap();
     mapsController(true);
@@ -630,7 +656,7 @@ function mapsController(coverageMap){
             } 
         })
         .on('mouseout', function(){
-            hideMapTooltip(maptip);
+            // hideMapTooltip(maptip);
         });
     } else {
         //IPC map
